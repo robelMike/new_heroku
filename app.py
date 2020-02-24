@@ -1,10 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 from flask_restful import Resource, Api
-<<<<<<< HEAD
 from flask_celery import make_celery
-=======
->>>>>>> cfd663c903784319cc493b7aebd7785422970f29
 import requests
 from flask_sqlalchemy import SQLAlchemy
 from db import db
@@ -44,14 +41,13 @@ class fixdb(db.Model):
 def create_tables():
 	db.create_all()
 
-<<<<<<< HEAD
 @celery.task(name='dht.receive')
 def receive_dht():
 	r = requests.get("http://192.168.0.34:5000/dht")
 	data = r.json()
 	temp = data['temperature']
 	name = data['humidity']
-=======
+
 @app.route('/create', methods=['GET'])
 def postrandom():
 	r = requests.post("http://192.168.0.34:5000/dht")
@@ -59,7 +55,6 @@ def postrandom():
 	temp = data['temperature']
 	name = data['humidity']
 	print(f"temp: {temp} hum: {name}")
->>>>>>> cfd663c903784319cc493b7aebd7785422970f29
 	test_temp = fixdb(temp, name)
 	test_temp.add_to_db()
 	print(temp)
