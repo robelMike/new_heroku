@@ -9,7 +9,7 @@ from db import db
 
 app = Flask(__name__)
 
-app.config['CELERY_BROKER_URL'] = 'amqp://localhost//'
+app.config['CELERY_BROKER_URL'] = 'amqp://jdcsohky:6n7Niqm9-hEtQiUWg912u0EWzCt-bLE_@crow.rmq.cloudamqp.com/jdcsohky'
 app.config['CELERY_BACKEND'] = 'rpc://'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
