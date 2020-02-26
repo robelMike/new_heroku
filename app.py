@@ -48,7 +48,7 @@ def receive_dht():
 	temp = data['temperature']
 	name = data['humidity']
 
-@app.route('/create', methods=['GET'])
+"""@app.route('/make', methods=['GET'])
 def postrandom():
 	r = requests.post("http://192.168.0.34:5000/dht")
 	data = r.json()
@@ -62,7 +62,7 @@ def postrandom():
 	return jsonify(temp, name)
 	return{'message', 'error'}
 
-	return (temp, name)
+	return (temp, name)"""
 
 @app.route('/create', methods=['GET'])
 def postrandom():
