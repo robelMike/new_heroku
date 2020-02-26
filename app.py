@@ -47,27 +47,18 @@ def receive_dht():
 	data = r.json()
 	temp = data['temperature']
 	name = data['humidity']
-
-"""@app.route('/make', methods=['GET'])
-def postrandom():
-	r = requests.post("http://192.168.0.34:5000/dht")
-	data = r.json()
-	temp = data['temperature']
-	name = data['humidity']
 	print(f"temp: {temp} hum: {name}")
 	test_temp = fixdb(temp, name)
 	test_temp.add_to_db()
 	print(temp)
 	print(name)
-	return jsonify(temp, name)
-	return{'message', 'error'}
-
-	return (temp, name)"""
+	return 'ok'
 
 @app.route('/create', methods=['GET'])
 def postrandom():
 	receive_dht.delay()
 	return 'ok'
+
 
 @app.route('/list', methods=['GET'])
 def list():
