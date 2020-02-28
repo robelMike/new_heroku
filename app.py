@@ -41,7 +41,7 @@ class fixdb(db.Model):
 def create_tables():
 	db.create_all()
 
-"""@celery.task(name='dht.receive')
+@celery.task(name='dht.receive')
 def receive_dht():
 	r = requests.get("http://192.168.0.34:5000/dht")
 	data = r.json()
@@ -52,19 +52,11 @@ def receive_dht():
 	test_temp.add_to_db()
 	print(temp)
 	print(name)
-	return 'ok'"""
+	return 'ok'
 
 @app.route('/create', methods=['GET'])
 def postrandom():
-	r = requests.get("http://192.168.0.34:5000/dht")
-	data = r.json()
-	temp = data['temperature']
-	name = data['humidity']
-	print(f"temp: {temp} hum: {name}")
-	test_temp = fixdb(temp, name)
-	test_temp.add_to_db()
-	print(temp)
-	print(name)
+	receive_dht.delay()
 	return 'ok'
 
 
