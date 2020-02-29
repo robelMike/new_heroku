@@ -67,13 +67,17 @@ def postrandom():
 	receive_dht.delay()
 	return 'ok'
 
-
-@app.route('/list', methods=['GET'])
-def list():
+@celery.task(name='create.list')
+def get_list():
 	list = db.session.query(fixdb.temp, fixdb.name).all()
 	for m in list:
 		print(m)
 	return jsonify(list)
+
+@app.route('/list', methods=['GET'])
+def list():
+	get_list.delay()
+	return 'ok'
 
 @app.route('/name/<string:name>', methods=['GET'])
 def getindex(name):
