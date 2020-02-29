@@ -15,6 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 celery = make_celery(app)
 db = SQLAlchemy(app)
+new_list = []
 
 class fixdb(db.Model):
 	__tablename__ = 'dht_new'
@@ -26,7 +27,6 @@ class fixdb(db.Model):
 	def __init__(self, temp, name):
 		self.temp = temp
 		self.name = name
-
 
 	def add_to_db(self):
 		db.session.add(self)
@@ -41,7 +41,7 @@ class fixdb(db.Model):
 def create_tables():
 	db.create_all()
 
-@celery.task(name='dht.receive')
+"""@celery.task(name='dht.receive')
 def receive_dht():
 	r = requests.get("http://192.168.0.34:5000/dht")
 	data = r.json()
@@ -49,14 +49,32 @@ def receive_dht():
 	name = data['humidity']
 	print(f"temp: {temp} hum: {name}")
 	test_temp = fixdb(temp, name)
+	new_list.append(test_temp)
+	print('list')
+	print(new_list)
 	test_temp.add_to_db()
 	print(temp)
 	print(name)
-	return 'ok'
+	print('test tempen')
+	print(test_temp)
+	return 'ok'"""
 
 @app.route('/create', methods=['GET'])
 def postrandom():
-	receive_dht.delay()
+	r = requests.get("http://192.168.0.34:5000/dht")
+	data = r.json()
+	temp = data['temperature']
+	name = data['humidity']
+	print(f"temp: {temp} hum: {name}")
+	test_temp = fixdb(temp, name)
+	new_list.append(test_temp)
+	print('list')
+	print(new_list)
+	test_temp.add_to_db()
+	print(temp)
+	print(name)
+	print('test tempen')
+	print(test_temp)
 	return 'ok'
 
 
