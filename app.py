@@ -37,7 +37,9 @@ class fixdb(db.Model):
 		db.session.commit()
 
 
-@app.before_first_request
+
+
+@celery.task(name='dht.db')
 def create_tables():
 	db.create_all()
 
@@ -57,6 +59,7 @@ def receive_dht():
 
 @app.route('/create', methods=['GET'])
 def postrandom():
+	create_tables.delay()
 	receive_dht.delay()
 	return 'ok'
 
