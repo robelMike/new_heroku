@@ -62,18 +62,15 @@ def receive_dht():
 @app.route('/create', methods=['GET'])
 def postrandom():
 	temp = 23
-	name = 44
+	name = 4
 	print(f"temp: {temp} hum: {name}")
 	test_temp = fixdb(temp, name)
 	new_list.append(test_temp)
-	print('list')
-	print(new_list)
 	test_temp.add_to_db()
 	print(temp)
 	print(name)
 	print('test tempen')
 	print(test_temp)
-	return 'ok'
 	return 'ok'
 
 
