@@ -43,6 +43,11 @@ class fixdb(db.Model):
 def create_tables():
 	db.create_all()
 
+
+@app.before_first_request
+def create_db():
+	create_tables.delay()
+
 @celery.task(name='dht.receive')
 def receive_dht():
 	temp = 23
@@ -55,12 +60,10 @@ def receive_dht():
 	print(name)
 	print('test tempen')
 	print(test_temp)
-	print('here')
 	return 'ok'
 
 @app.route('/create', methods=['GET'])
 def postrandom():
-	create_tables.delay()
 	receive_dht.delay()
 	return 'ok'
 
