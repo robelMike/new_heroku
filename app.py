@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, session
 from flask_restful import Resource, Api
 from flask_celery import make_celery
 import requests
@@ -15,6 +15,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:/
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 celery = make_celery(app)
 db = SQLAlchemy(app)
+app.config['SESSION_TYPE'] = 'memcached'
+app.config['SECRET_KEY'] = 'super secret key'
+
 new_list = []
 
 class fixdb(db.Model):
@@ -36,54 +39,48 @@ class fixdb(db.Model):
 		db.session.delete(self)
 		db.session.commit()
 
-
-
-
-@celery.task(name='dht.db')
+"""@app.before_first_request
 def create_tables():
 	db.create_all()
-
-
-@app.before_first_request
-def create_db():
-	create_tables.delay()
-
-@celery.task(name='dht.receive')
+"""
+@app.route('/get_temp', methods=['GET'])
 def receive_dht():
-	temp = 23
-	name = 4
+	r = requests.get("http://192.168.0.34:5000/dht")
+	data = r.json()
+	temp = data['temperature']
+	name = data['humidity']
 	print(f"temp: {temp} hum: {name}")
-	test_temp = fixdb(temp, name)
-	new_list.append(test_temp)
-	test_temp.add_to_db()
+	new_temp = temp
+	new_name = name
+	session['new_temp'] = new_temp
+	session['new_name'] = new_name
 	print(temp)
 	print(name)
-	print('test tempen')
-	print(test_temp)
+	print(f"new_list: {new_list}")
 	return 'ok'
 
 @app.route('/create', methods=['GET'])
 def postrandom():
-	receive_dht.delay()
-	return 'ok'
+	temp = session.get('new_temp')
+	name = session.get('new_name')
+	print(f"temp i create: {temp}")
+	print(f"hum i create: {name}")
 
-@celery.task(name='create.list')
-def get_list():
+	test_temp = fixdb(temp, name)
+	test_temp.add_to_db()
+	return 'ok'
+	
+@app.route('/list', methods=['GET'])
+def list():
 	list = db.session.query(fixdb.temp, fixdb.name).all()
 	for m in list:
 		print(m)
 	return jsonify(list)
 
-@app.route('/list', methods=['GET'])
-def list():
-	get_list.delay()
-	return 'ok'
-
 @app.route('/name/<string:name>', methods=['GET'])
 def getindex(name):
 	if fixdb.query.filter_by(name=name).first():
 		return {"index": ['name:', name]}
-
 
 @app.route('/delete/<string:name>', methods=['POST'])
 def delete(name):
@@ -112,4 +109,5 @@ def getdht():
 	 
 
 if __name__ == '__main__':
+	db.create_all()
 	app.run(host= '0.0.0.0', debug=True)
