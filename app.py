@@ -55,6 +55,7 @@ def receive_dht():
 	print(name)
 	print('test tempen')
 	print(test_temp)
+	print('here')
 	return 'ok'
 
 @app.route('/create', methods=['GET'])
