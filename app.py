@@ -61,7 +61,7 @@ def receive_dht():
 	#session['new_temp'] = new_temp
 	#session['new_name'] = new_name
 	#r = requests.post(url, temp)	#print(r.text)
-	print(f"new_list: {new_list}")
+	#print(f"new_list: {new_list}")
 	return 'ok'
 
 @celery.task(name='dht.list')
