@@ -92,7 +92,7 @@ def list():
 @app.route('/name/<string:name>', methods=['GET'])
 def getindex(name):
 	if fixdb.query.filter_by(name=name).first():
-		return {"index": name}
+		print("index:" name)
 
 @app.route('/delete/<string:name>', methods=['POST'])
 def delete(name):
