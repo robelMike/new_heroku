@@ -41,9 +41,9 @@ class fixdb(db.Model):
 		db.session.delete(self)
 		db.session.commit()
 
-@app.before_first_request
+"""@app.before_first_request
 def create_tables():
-	db.create_all()
+	db.create_all()"""
 
 @celery.task(name='dht.receive')
 def receive_dht():
@@ -99,11 +99,10 @@ def getindex(name):
 def delete(name):
 	data = request.get_json()
 	print(name)
-	object = fixdb.query.filter_by(name=name).first()
-	print(name)
-	fixdb.delete_from_db(object)	
+	fixdb.delete_from_db(fixdb.query.filter_by(name=name).first())	
 	return 'deleted'
 		 
 
 if __name__ == '__main__':
+	db.create_all()
 	app.run(host= '0.0.0.0', debug=True)
