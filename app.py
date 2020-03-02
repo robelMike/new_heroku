@@ -22,8 +22,6 @@ app.config['SESSION_TYPE'] = 'memcached'
 app.config['SECRET_KEY'] = 'super secret key'
 
 
-new_list = []
-
 class fixdb(db.Model):
 	__tablename__ = 'dht_new'
 
@@ -43,17 +41,12 @@ class fixdb(db.Model):
 		db.session.delete(self)
 		db.session.commit()
 
-"""@app.before_first_request
+@app.before_first_request
 def create_tables():
 	db.create_all()
-"""
+
 @celery.task(name='dht.receive')
 def receive_dht():
-	get_receive()	
-	return 'ok'
-
-
-def get_receive():
 	#r = requests.get("http://192.168.0.34:5000/dht")
 	#data = r.json()
 
@@ -67,10 +60,17 @@ def get_receive():
 	#url = "http://0.0.0.0:5000/temp"
 	#session['new_temp'] = new_temp
 	#session['new_name'] = new_name
-	#r = requests.post(url, temp)
-	#print(r.text)
+	#r = requests.post(url, temp)	#print(r.text)
 	print(f"new_list: {new_list}")
 	return 'ok'
+
+@celery.task(name='dht.list')
+def dht_list():
+	list = db.session.query(fixdb.temp, fixdb.name).all()
+	for m in list:
+		print(m)
+	return jsonify(list)
+
 
 @app.route('/create', methods=['GET'])
 def postrandom():
@@ -86,11 +86,9 @@ def postrandom():
 	
 @app.route('/list', methods=['GET'])
 def list():
-	list = db.session.query(fixdb.temp, fixdb.name).all()
-	for m in list:
-		print(m)
-	return jsonify(list)
-
+	dht_list.delay()
+	return'ok'
+	
 @app.route('/name/<string:name>', methods=['GET'])
 def getindex(name):
 	if fixdb.query.filter_by(name=name).first():
@@ -103,25 +101,8 @@ def delete(name):
 	object = fixdb.query.filter_by(name=name).first()
 	print(name)
 	fixdb.delete_from_db(object)	
-	return jsonify("deleted", name)
-
-
-@app.route('/dht_receive', methods=['GET', 'POST'])
-def input():
-	if request.method == 'POST':
-		tempan = request.form.get('temperature')
-		return jsonify(tempan)
-
-
-@app.route('/dht', methods=['GET'])
-def getdht():
-	data = request.get_json()
-	temp = data['temperature']
-	return jsonify(temp)
-
-
-	 
+	return 'deleted'
+		 
 
 if __name__ == '__main__':
-	db.create_all()
 	app.run(host= '0.0.0.0', debug=True)
