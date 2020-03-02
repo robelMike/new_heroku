@@ -99,7 +99,9 @@ def getindex(name):
 def delete(name):
 	data = request.get_json()
 	print(name)
-	fixdb.delete_from_db(fixdb.query.filter_by(name=name).first())	
+	object = fixdb.query.filter_by(name=name).first()
+	print(name)
+	object.delete_from_db()	
 	return 'deleted'
 		 
 
