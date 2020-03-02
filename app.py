@@ -41,53 +41,51 @@ class fixdb(db.Model):
 		db.session.delete(self)
 		db.session.commit()
 
+	@classmethod
+	def find_name(cls, name):
+		return fixdb.query.filter_by(name=name).first()
+		
+
 """@app.before_first_request
 def create_tables():
 	db.create_all()"""
 
 @celery.task(name='dht.receive')
 def receive_dht():
-	#r = requests.get("http://192.168.0.34:5000/dht")
-	#data = r.json()
+	r = requests.get("http://192.168.0.34:5000/dht")
+	data = r.json()
 
-	#temp = data['temperature']
-	#name = data['humidity']
-	temp = 12
-	name = 44
+	temp = data['temperature']
+	name = data['humidity']
 	print(f"temp: {temp} hum: {name}")
 	new_temp = temp
 	new_name = name
-	#url = "http://0.0.0.0:5000/temp"
-	#session['new_temp'] = new_temp
-	#session['new_name'] = new_name
-	#r = requests.post(url, temp)	#print(r.text)
-	#print(f"new_list: {new_list}")
+	print(f"temp i create: {temp}")
+	print(f"hum i create: {name}")
+	test_temp = fixdb(temp, name)
+	test_temp.add_to_db()
 	return 'ok'
 
 @celery.task(name='dht.list')
-def dht_list():
+def list_task():
 	list = db.session.query(fixdb.temp, fixdb.name).all()
 	for m in list:
 		print(m)
 	return jsonify(list)
 
 
+
 @app.route('/create', methods=['GET'])
 def postrandom():
 	receive_dht.delay()
-	temp = session.get('new_temp')
-	name = session.get('new_name')
-	print(f"temp i create: {temp}")
-	print(f"hum i create: {name}")
-
-	test_temp = fixdb(temp, name)
-	test_temp.add_to_db()
 	return 'ok'
+
 	
 @app.route('/list', methods=['GET'])
-def list():
-	dht_list.delay()
-	return'ok'
+def dht_list():
+	list_task.delay()
+	return 'ok'
+
 	
 @app.route('/name/<string:name>', methods=['GET'])
 def getindex(name):
@@ -98,10 +96,8 @@ def getindex(name):
 @app.route('/delete/<string:name>', methods=['POST'])
 def delete(name):
 	data = request.get_json()
-	print(name)
 	object = fixdb.query.filter_by(name=name).first()
-	print(name)
-	object.delete_from_db()	
+	fixdb.delete_from_db(object)	
 	return 'deleted'
 		 
 
